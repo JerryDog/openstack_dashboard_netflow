@@ -1,0 +1,56 @@
+msgid "NetFlow"
+msgstr "网络流量"
+
+msgid "Month"
+msgstr "月份"
+
+msgid "Instance Ipaddress"
+msgstr "云主机IP地址"
+
+msgid "Instance Status"
+msgstr "云主机状态"
+
+msgid "Graphs"
+msgstr "图形"
+
+msgid "Total InNetFlow"
+msgstr "累计进流量"
+
+msgid "Total OutNetFlow"
+msgstr "累计出流量"
+
+msgid "Max Inrate"
+msgstr "最大进速率"
+
+msgid "Max Outrate"
+msgstr "最大出速率"
+
+msgid "DailyNetFlow"
+msgstr "单台每日流量"
+
+msgid "DailyNetInFlow"
+msgstr "单台每日进流量"
+
+msgid "DailyNetOutFlow"
+msgstr "单台每日出流量"
+
+msgid "MonthlyNetFlow"
+msgstr "项目每月流量"
+
+msgid "Monitor Items"
+msgstr "监控项"
+
+msgid "Last Update Time"
+msgstr "最后更新时间"
+
+msgid "Inrate Last Update"
+msgstr "最大进速率最后更新时间"
+
+msgid "Outrate Last Update"
+msgstr "最大出速率最后更新时间"
+
+msgid "in_rate"
+msgstr "进速率"
+
+msgid "out_rate"
+msgstr "出速率"
