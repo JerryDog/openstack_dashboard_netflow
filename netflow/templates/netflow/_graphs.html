@@ -1,0 +1,121 @@
+{% load i18n sizeformat %}
+<script src="/static/dashboard/js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<script src="/static/dashboard/js/highcharts.js" type="text/javascript"></script> 
+<script src="/static/dashboard/js/jquery.json-2.3.js" type="text/javascript"></script> 
+<link href="/static/dashboard/css/chart.css"  rel="stylesheet">
+<script>
+function draw() {
+    $('#graphs').highcharts({
+        title: {
+            text: 'Net Flow',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Net Flow',
+            x: -20
+        },
+        xAxis: {
+		title: {
+                    text: 'time'
+                },
+		tickInterval: 50,
+                categories: arrayData0.reverse(),
+        },
+        yAxis: {
+            title: {
+                text: 'Util (B)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: 'B'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{ 
+		name: 'net_flow',
+		data: arrayDataToFloat.reverse()
+ 	}]
+    });
+};
+</script>
+<script type="text/javascript">
+    $(function()
+    {
+        $('div.graphs-ul ul li').click(function(e)
+        {
+	    var i= $(this).index();
+	    metric=["network.incoming.bytes","network.outgoing.bytes"][i];
+            $('div.graphs-ul ul li').removeClass('graphs-selected');
+	    
+            $(this).addClass('graphs-selected');
+	    e.preventDefault();
+	    getData();
+        });
+    });
+
+var arrayData = new Array();
+var arrayData0 = new Array();
+var arrayData1 = new Array();
+var arrayDataToFloat = new Array();
+    function getData(){
+	return $.ajax({
+        type: "post",
+	dataType: "text",
+	data: {},
+        url: "/dashboard/project/netflow/"+metric+"/"+UUID+"/",
+        success: function(data) {
+          arrayData = data.split(";");
+	  arrayData0 = arrayData[0].split(",");
+	  arrayData1 = arrayData[1].split(",");
+	  arrayDataToFloat = [];
+	  for (var i=0;i<arrayData1.length;i++){
+		arrayDataToFloat.push(parseFloat(arrayData1[i]));
+	  }
+	  draw();
+          return console.log("post ok:"+arrayData0.length);
+        },
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status);
+                        alert(XMLHttpRequest.readyState);
+                        alert(textStatus);
+                    },
+      });
+    };
+
+var metric="network.incoming.bytes";
+var UUID="{{meters.0.resource_id}}";
+var data;
+getData();
+
+</script>
+<div class="graphs-contain">
+    <div class="graphs-title">
+        {% trans "Monitor" %}
+    </div>
+
+    <div class="graphs-main-contain">
+
+        <div class="graphs-first-contain">
+	    <div class="graphs-ul">
+		<div style="background:#F0F0F0;line-height:40px;">{% trans "Monitor Items" %}</div>
+		<ul>
+		    <li  class="graphs-selected">{% trans "DailyNetInFlow" %}</li>
+		    <li>{% trans "DailyNetOutFlow" %}</li>
+  		</ul>
+	    </div>
+	</div>
+
+	<div class="graphs-sec-contain">
+            <div id="graphs" style="min-width:700px;height:400px"></div>
+	</div>
+
+</div>

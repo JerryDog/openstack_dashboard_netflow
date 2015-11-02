@@ -1,0 +1,143 @@
+{% load i18n sizeformat %}
+<script src="/static/dashboard/js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<script src="/static/dashboard/js/highcharts.js" type="text/javascript"></script> 
+<script src="/static/dashboard/js/jquery.json-2.3.js" type="text/javascript"></script> 
+<link href="/static/dashboard/css/chart.css"  rel="stylesheet">
+<script>
+function draw() {
+    $('#graphs').highcharts({
+        title: {
+            text: 'Net Rate',
+            x: -20 //center
+        },
+        subtitle: {
+            text: 'Net Rate',
+            x: -20
+        },
+        xAxis: {
+		title: {
+                    text: 'time'
+                },
+		tickInterval: 50,
+                categories: arrayData0.reverse(),
+        },
+        yAxis: {
+            title: {
+                text: 'Util (B/s)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: 'B/s'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{ 
+		name: 'Net Rate',
+		data: arrayDataToFloat.reverse()
+ 	}]
+    });
+};
+</script>
+<script type="text/javascript">
+    $(function()
+    {
+	$("div.graphs-time-ul ul li").click(function(e)
+    	{
+            var i= $(this).index();
+            duration=["3h","1d","7d","30d"][i];
+            $("div.graphs-time-ul ul li").removeClass("graphs-selected");
+            $(this).addClass("graphs-selected");
+            e.preventDefault();
+            getData();
+        });
+
+        $('div.graphs-ul ul li').click(function(e)
+        {
+	    var i= $(this).index();
+	    metric=["network.incoming.bytes.rate","network.outgoing.bytes.rate"][i];
+            $('div.graphs-ul ul li').removeClass('graphs-selected');
+	    
+            $(this).addClass('graphs-selected');
+	    e.preventDefault();
+	    getData();
+        });
+    });
+
+var arrayData = new Array();
+var arrayData0 = new Array();
+var arrayData1 = new Array();
+var arrayDataToFloat = new Array();
+    function getData(){
+	return $.ajax({
+        type: "post",
+	dataType: "text",
+	data: {},
+        url: "/dashboard/project/netflow/"+metric+"/"+UUID+"/"+duration+"/",
+        success: function(data) {
+          arrayData = data.split(";");
+	  arrayData0 = arrayData[0].split(",");
+	  arrayData1 = arrayData[1].split(",");
+	  arrayDataToFloat = [];
+	  for (var i=0;i<arrayData1.length;i++){
+		arrayDataToFloat.push(parseFloat(arrayData1[i]));
+	  }
+	  arrayData0.pop();
+	  arrayDataToFloat.pop();
+	  draw();
+          return console.log("post ok:"+arrayData0.length);
+        },
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status);
+                        alert(XMLHttpRequest.readyState);
+                        alert(textStatus);
+                    },
+      });
+    };
+
+var metric="network.incoming.bytes.rate";
+var UUID="{{ meters.0.resource_id }}";
+var duration="3h";
+var data;
+getData();
+
+</script>
+<div class="graphs-contain">
+    <div class="graphs-title">
+        Monitor Items
+    </div>
+
+    <div class="graphs-main-contain">
+
+        <div class="graphs-first-contain">
+	    <div class="graphs-ul">
+		<div style="background:#F0F0F0;line-height:40px;">Items</div>
+		<ul>
+		    <li class="graphs-selected">Net_In_Flow</li>
+		    <li>Net_Out_Flow</li>
+  		</ul>
+	    </div>
+	</div>
+
+        <div class="graphs-sec-contain">
+	    <div id="graphs" style="min-width:700px;height:400px"></div>
+	    <div class="graphs-time-ul">
+		<ul>
+		    <li  class="graphs-selected">Last Three Hours</li>
+		    <li>Last Day</li>
+		    <li>Last week</li>
+		    <li>Last Month</li>
+  		</ul>
+	    </div>
+	</div>
+    </div>
+
+</div>

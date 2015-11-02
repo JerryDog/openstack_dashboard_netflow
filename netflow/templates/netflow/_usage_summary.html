@@ -1,0 +1,10 @@
+{% load i18n sizeformat %}
+<div class="usage_info_wrapper">
+    <form action="?" method="get" id="date_form" class="form-horizontal">
+	<div class="datepicker">
+      {% blocktrans with start=form.start end=form.end %}<span>From: {{ start }} </span><span> To: {{ end }} </span>{% endblocktrans %}
+      <button class="btn btn-primary" type="submit" id="submit">{% trans "Submit" %}</button>
+      <small>{% trans "The date should be in YYYY-mm-dd format." %}</small>
+    </div>
+    </form>
+</div>

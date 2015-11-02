@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "NetFlow" %}{% endblock %}
+
+{% block page_header %}
+  {% include "horizon/common/_page_header.html" with title=_("NetFlow") %}
+{% endblock page_header %}
+{% block js %}
+<script src="/static/dashboard/js/jquery-1.8.3.min.js" type="text/javascript"></script>
+{{block.super}}
+<script src="/static/dashboard/js/highcharts.js" type="text/javascript"></script> 
+<script src="/static/dashboard/js/jquery.json-2.3.js" type="text/javascript"></script>
+<script>
+var data = '{{ data }}';
+var arrayData = data.split(";");
+var data_in = arrayData[0].split(",");
+var data_out = arrayData[1].split(",");
+var period = parseFloat(arrayData[3]);
+var data_in_float = new Array();
+var data_out_float = new Array();
+for (var i=0;i<data_in.length;i++){
+		data_in_float.push(parseFloat(data_in[i]));
+}
+
+for (var i=0;i<data_out.length;i++){
+                data_out_float.push(parseFloat(data_out[i]));
+}
+var date_start=arrayData[2];
+var date_end=$("#id_end").val();
+var date_start_format=arrayData[2].split('-');
+	function draw() {
+                 $('#chart').highcharts({
+                     credits: {
+                         enabled: false
+                     },
+                     chart: {
+                         type: 'area'
+                     },
+                     title: {
+                         text:  'From ' + date_start + ' To '+date_end
+                     },
+                     subtitle: {
+                         text: document.ontouchstart === undefined ?
+                                 'detail' :
+                                 ''
+                     },
+                     xAxis: {
+                         type: 'datetime'
+
+                     },
+                     yAxis: {
+                         title: {
+                             text:'danwei'
+                         },
+                         min: 0,
+                         plotLines: [{
+                             value: 0,
+                             width: 1,
+                             color: '#808080'
+                                    }]
+                     },
+                      tooltip: {
+                        valueSuffix: 'Mbps'
+                      },
+                     legend: {
+                         enabled: true,
+			 layout: 'vertical',
+			 floating: true,
+			 align: 'left',
+   			 verticalAlign: 'top',
+			 x: 0,
+			 y: 0,
+                     },
+
+        plotOptions: {
+            area: {
+                marker: {
+                    enabled: false,
+                    symbol: 'circle',
+                    radius: 2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            }
+        },
+
+                     series: [{
+			 color: '#FF0000',
+                         name: '{% trans "in_rate" %}',
+                         data: data_in_float,
+                         pointStart: Date.UTC(date_start_format[0],date_start_format[1]-1,date_start_format[2]),
+                         pointInterval: period
+                     }, {
+			 color: '#00DB00',
+                         name: '{% trans "out_rate" %}',
+                         data: data_out_float,
+                         pointStart: Date.UTC(date_start_format[0],date_start_format[1]-1,date_start_format[2]),
+                         pointInterval: period
+			}]
+                 });
+         };
+draw();
+
+</script>
+{% endblock %}
+
+{% block main %}
+
+              <div>
+               
+                            <div>{% include "project/netflow/_usage_summary.html" %}</div><hr>
+
+                        <div id="chart" style="min-width:400px;height:400px"></div>
+             </div>
+  
+  <div id="total">
+      {{ total_table.render }}
+  </div>
+
+  <div id="netflow">
+      {{ netflow_table.render }}
+  </div>
+{% endblock %}
